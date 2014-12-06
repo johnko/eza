@@ -760,11 +760,11 @@ create)
 
   # if the automount feature is not disabled, this fstab entry for new jail
   # will be obeyed
-  echo -n > /etc/fstab.${ezjail_safename}
+  echo -n > /usr/local/etc/fstab.${ezjail_safename}
   if [ "${ezjail_imagetype}" -a "${ezjail_imagetype}" != "zfs" ] ; then
-    echo ${ezjail_devicelink} ${ezjail_rootdir} ufs rw 0 0 >> "/etc/fstab.${ezjail_safename}"
+    echo ${ezjail_devicelink} ${ezjail_rootdir} ufs rw 0 0 >> "/usr/local/etc/fstab.${ezjail_safename}"
   fi
-  echo ${ezjail_jailbase} ${ezjail_rootdir}/basejail nullfs ro 0 0 >> "/etc/fstab.${ezjail_safename}"
+  echo ${ezjail_jailbase} ${ezjail_rootdir}/basejail nullfs ro 0 0 >> "/usr/local/etc/fstab.${ezjail_safename}"
 
   # now, where everything seems to have gone right, create control file in
   # ezjails config dir
@@ -911,7 +911,7 @@ delete)
 
   # now we know everything we need to let the jail be gone. remove entry
   # from ezjail resource structure, delete fstab.JAILNAME
-  rm -f "${ezjail_config}" "/etc/fstab.${ezjail_safename}"
+  rm -f "${ezjail_config}" "/usr/local/etc/fstab.${ezjail_safename}"
 
   # if there is a soft link pointing to the jail root, remove it
   [ -L "${ezjail_softlink}" ] && rm -f "${ezjail_softlink}"
@@ -1369,13 +1369,13 @@ archive)
     # For stdout do specify nothing
     [ "${ezjail_archive}" = "-" ] && unset ezjail_archive_opt || ezjail_archive_opt="-f ${ezjail_archive}"
 
-    [ -f "/etc/fstab.${ezjail_safename}" ] && ezjail_addfiles=/etc/fstab.${ezjail_safename}
+    [ -f "/usr/local/etc/fstab.${ezjail_safename}" ] && ezjail_addfiles=/usr/local/etc/fstab.${ezjail_safename}
 
     cd "${ezjail_rootdir}" || exerr "Error: Can't cd to ${ezjail_root}."
     pax -wzXt -x cpio ${ezjail_archive_opt} \
       -s:"^[^\\.].*/${ezjail_safename}\$":prop.ezjail-${ezjail_archive_tag}: \
       -s:"^[^\\.].*/${ezjail_safename}.norun\$":prop.ezjail-${ezjail_archive_tag}.norun: \
-      -s:"etc/fstab.${ezjail_safename}\$":fstab.ezjail: \
+      -s:"usr/local/etc/fstab.${ezjail_safename}\$":fstab.ezjail: \
       -s:"^\\.":ezjail: \
       "${ezjail_config}" ${ezjail_addfiles} .
 
@@ -1564,15 +1564,15 @@ config)
     [ "${ezjail_imagetype}" = "zfs" ] && /sbin/zfs rename ${ezjail_parentzfs}/${ezjail_old_hostname} ${ezjail_parentzfs}/${ezjail_hostname} && /sbin/zfs set mountpoint=${ezjail_rootdir} ${ezjail_parentzfs}/${ezjail_hostname} && rmdir ${ezjail_old_rootdir}
 
     # rename fstab
-    rm -f "/etc/fstab.${ezjail_old_safename}"
-    echo -n > "/etc/fstab.${ezjail_safename}"
+    rm -f "/usr/local/etc/fstab.${ezjail_old_safename}"
+    echo -n > "/usr/local/etc/fstab.${ezjail_safename}"
     [ "${ezjail_imagetype}" -a "${ezjail_imagetype}" != "zfs" ] && \
-    echo ${ezjail_rootdir}.device ${ezjail_rootdir} ufs rw 0 0 >> "/etc/fstab.${ezjail_safename}"
-    echo ${ezjail_jailbase} ${ezjail_rootdir}/basejail nullfs ro 0 0 >> "/etc/fstab.${ezjail_safename}"
+    echo ${ezjail_rootdir}.device ${ezjail_rootdir} ufs rw 0 0 >> "/usr/local/etc/fstab.${ezjail_safename}"
+    echo ${ezjail_jailbase} ${ezjail_rootdir}/basejail nullfs ro 0 0 >> "/usr/local/etc/fstab.${ezjail_safename}"
 
     # usually that doesnt go smoothly, but the user wanted it
     # that way ;)
-    echo "Jail has been renamed. You might want to check ${ezjail_config} and /etc/fstab.${ezjail_safename} to ensure everything has gone smoothly."
+    echo "Jail has been renamed. You might want to check ${ezjail_config} and /usr/local/etc/fstab.${ezjail_safename} to ensure everything has gone smoothly."
     echo "Also check settings in your Jail's /etc/ directory (especially /etc/rc.conf)."
   fi
 
