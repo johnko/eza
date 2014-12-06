@@ -184,6 +184,7 @@ writejailinfo () {
   echo export jail_${ezjail_safename}_parameters=\"${ezjail_parameters}\"
   echo export jail_${ezjail_safename}_post_start_script=\"${ezjail_post_start_script}\"
   echo export jail_${ezjail_safename}_retention_policy=\"${ezjail_retention_policy}\"
+  echo export jail_${ezjail_safename}_fstab=\"/usr/local/etc/fstab.${ezjail_safename}\"
 
   ) > "${ezjail_destconf}"
 
