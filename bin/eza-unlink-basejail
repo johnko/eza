@@ -1,0 +1,23 @@
+#!/bin/sh
+
+JAILNAME=$1
+
+if [ "x" != "x${JAILNAME}" ]; then
+  rm /usr/jails/${JAILNAME}/bin
+  rm /usr/jails/${JAILNAME}/boot
+  rm /usr/jails/${JAILNAME}/libexec
+  rm /usr/jails/${JAILNAME}/usr/bin
+  rm /usr/jails/${JAILNAME}/usr/lib32
+  rm /usr/jails/${JAILNAME}/usr/libdata
+  rm /usr/jails/${JAILNAME}/usr/libexec
+  rsync -viaP /bin/          /usr/jails/${JAILNAME}/bin/
+  rsync -viaP /boot/         /usr/jails/${JAILNAME}/boot/
+  rsync -viaP /libexec/      /usr/jails/${JAILNAME}/libexec/
+  rsync -viaP /usr/bin/      /usr/jails/${JAILNAME}/usr/bin/
+  rsync -viaP /usr/lib32/    /usr/jails/${JAILNAME}/usr/lib32/
+  rsync -viaP /usr/libdata/  /usr/jails/${JAILNAME}/usr/libdata/
+  rsync -viaP /usr/libexec/  /usr/jails/${JAILNAME}/usr/libexec/
+else
+  echo "ERROR: missing jail name" >&2
+  exit 1
+fi
