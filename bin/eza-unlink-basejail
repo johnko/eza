@@ -9,6 +9,10 @@ if [ "x" != "x${JAILNAME}" ]; then
                                         rm  /usr/jails/${JAILNAME}/${i}
     rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
   done
+  rm  /usr/jails/${JAILNAME}/boot/*.key
+  rm  /usr/jails/${JAILNAME}/boot/zfs/*
+  rm  /usr/jails/${JAILNAME}/boot/kernel/*
+  rm  /usr/jails/${JAILNAME}/boot/kernel.old/*
 else
   echo "ERROR: missing jail name" >&2
   exit 1
