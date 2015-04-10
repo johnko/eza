@@ -3,17 +3,13 @@
 JAILNAME=$1
 
 if [ "x" != "x${JAILNAME}" ]; then
-  for i in bin boot lib libexec rescue sbin \
-    usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
-    usr/sbin usr/share usr/src ; do
-                                        rm  /usr/jails/${JAILNAME}/${i}
-    rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
-  done
-  rm  /usr/jails/${JAILNAME}/boot/*.key
-  rm  /usr/jails/${JAILNAME}/boot/zfs/*
-  rm  /usr/jails/${JAILNAME}/boot/kernel/*
-  rm  /usr/jails/${JAILNAME}/boot/kernel.old/*
+    for i in bin lib libexec rescue sbin \
+        usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
+        usr/sbin usr/share usr/src ; do
+                                            rm  /usr/jails/${JAILNAME}/${i}
+        rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
+    done
 else
-  echo "ERROR: missing jail name" >&2
-  exit 1
+    echo "ERROR: missing jail name" >&2
+    exit 1
 fi
