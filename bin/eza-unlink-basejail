@@ -18,8 +18,8 @@ if [ "x" != "x${JAILNAME}" ]; then
     [ -e /usr/local/sbin/pkg-static ] \
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
-    eza console -f -e "freebsd-update fetch" ${JAILNAME}
-    eza console -f -e "freebsd-update install" ${JAILNAME}
+    eza console -f -e "freebsd-update fetch | cat" ${JAILNAME}
+    eza console -f -e "freebsd-update install | cat" ${JAILNAME}
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
