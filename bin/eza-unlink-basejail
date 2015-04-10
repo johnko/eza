@@ -3,12 +3,19 @@
 JAILNAME=$1
 
 if [ "x" != "x${JAILNAME}" ]; then
-    for i in bin lib libexec rescue sbin \
+    for i in bin boot lib libexec rescue sbin \
         usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
         usr/sbin usr/share usr/src ; do
                                             rm  /usr/jails/${JAILNAME}/${i}
         rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
     done
+    [ -e ~/bin/fres ] && cp ~/bin/fres /usr/jails/${JAILNAME}/root/
+    [ -e /usr/local/sbin/pkg-static ] && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/pkg-static
+    eza console -f ${JAILNAME} freebsd-update fetch
+    eza console -f ${JAILNAME} freebsd-update install
+    eza console -f ${JAILNAME} pkg-static install -y pkg git
+    eza console -f ${JAILNAME} sh /root/fres
+    eza console -f ${JAILNAME} rm /root/fres
 else
     echo "ERROR: missing jail name" >&2
     exit 1
