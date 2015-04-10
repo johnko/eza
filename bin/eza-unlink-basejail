@@ -11,11 +11,11 @@ if [ "x" != "x${JAILNAME}" ]; then
     done
     [ -e ~/bin/fres ] && cp ~/bin/fres /usr/jails/${JAILNAME}/root/
     [ -e /usr/local/sbin/pkg-static ] && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/pkg-static
-    eza console -f ${JAILNAME} freebsd-update fetch
-    eza console -f ${JAILNAME} freebsd-update install
-    eza console -f ${JAILNAME} pkg-static install -y pkg git
-    eza console -f ${JAILNAME} sh /root/fres
-    eza console -f ${JAILNAME} rm /root/fres
+    eza console -f -e "freebsd-update fetch" ${JAILNAME}
+    eza console -f -e "freebsd-update install" ${JAILNAME}
+    eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
+    eza console -f -e "sh /root/fres" ${JAILNAME}
+    eza console -f -e "rm /root/fres" ${JAILNAME}
 else
     echo "ERROR: missing jail name" >&2
     exit 1
