@@ -22,7 +22,7 @@ if [ "x" != "x${JAILNAME}" ]; then
     eza console -f -e "freebsd-update install" ${JAILNAME} | cat
     [ -d /boot/packages ] \
         && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
-        && eza console -f -e "pkg-static add -f $( ls /boot/packages/*.t?z )" ${JAILNAME}
+        && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
