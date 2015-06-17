@@ -9,6 +9,11 @@ if [ "x" != "x${JAILNAME}" ]; then
                                             rm  /usr/jails/${JAILNAME}/${i}
         rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
     done
+    cat /usr/local/etc/fstab.${JAILNAME} \
+        | awk '{print "# "$0}' \
+        >/tmp/fstab.${JAILNAME}
+    cat  /tmp/fstab.${JAILNAME} >/usr/local/etc/fstab.${JAILNAME}
+    rm   /tmp/fstab.${JAILNAME}
     [ -e /etc/resolv.conf ] \
         && [ ! -e /usr/jails/${JAILNAME}/etc/resolv.conf ] \
         && cp /etc/resolv.conf /usr/jails/${JAILNAME}/etc/
