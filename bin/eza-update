@@ -7,8 +7,10 @@ JAILNAME="newjail"
 for i in bin boot lib libexec rescue sbin \
     usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
     usr/sbin usr/share usr/src ; do
-                                        rm  /usr/jails/${JAILNAME}/${i}
-    rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
+    if [ -h /usr/jails/${JAILNAME}/${i} ]; then
+                                            rm  /usr/jails/${JAILNAME}/${i}
+        rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
+    fi
 done
     
 eza update -u
