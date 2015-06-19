@@ -1,0 +1,14 @@
+#!/bin/sh
+
+which rsync || exit 1
+
+JAILNAME="newjail"
+
+for i in bin boot lib libexec rescue sbin \
+    usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
+    usr/sbin usr/share usr/src ; do
+                                        rm  /usr/jails/${JAILNAME}/${i}
+    rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
+done
+    
+eza update -u
