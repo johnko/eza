@@ -28,7 +28,7 @@ if [ "x" != "x${JAILNAME}" ]; then
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
     # Not squid jail otherwise recursive dependency
     if [ "xsquid" != "x${JAILNAME}" ]; then
-        if eza list | grep ' squid ' >/dev/null ;
+        if eza list | grep ' squid ' >/dev/null ; then
             # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
             install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
             cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
