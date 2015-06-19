@@ -26,6 +26,46 @@ if [ "x" != "x${JAILNAME}" ]; then
     [ -e /usr/local/sbin/pkg-static ] \
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
+    # Not squid jail otherwise recursive dependency
+    if [ "xsquid" != "x${JAILNAME}" ]; then
+        if eza list | grep ' squid ' >/dev/null ;
+            # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
+            install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
+            cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
+# Sample alias settings
+ALIAS              : {
+  all-depends: query %dn-%dv,
+  annotations: info -A,
+  build-depends: info -qd,
+  cinfo: info -Cx,
+  comment: query -i "%c",
+  csearch: search -Cx,
+  desc: query -i "%e",
+  download: fetch,
+  iinfo: info -ix,
+  isearch: search -ix,
+  prime-list: "query -e '%a = 0' '%n'",
+  leaf: "query -e '%#r == 0' '%n-%v'",
+  list: info -ql,
+  noauto = "query -e '%a == 0' '%n-%v'",
+  options: query -i "%n - %Ok: %Ov",
+  origin: info -qo,
+  provided-depends: info -qb,
+  raw: info -R,
+  required-depends: info -qr,
+  roptions: rquery -i "%n - %Ok: %Ov",
+  shared-depends: info -qB,
+  show: info -f -k,
+  size: info -sq,
+}
+PKG_ENV : {
+  HTTP_PROXY: "http://10.7.7.1:3218",
+  HTTPS_PROXY: "http://10.7.7.1:3218"
+}
+EOF
+            chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
+        fi
+    fi
     eza console -f -e "freebsd-update fetch" ${JAILNAME} | cat
     eza console -f -e "freebsd-update install" ${JAILNAME} | cat
     [ -d /boot/packages ] \
