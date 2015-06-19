@@ -59,8 +59,8 @@ ALIAS              : {
   size: info -sq,
 }
 PKG_ENV : {
-  HTTP_PROXY: "http://10.7.7.1:3218",
-  HTTPS_PROXY: "http://10.7.7.1:3218"
+  HTTP_PROXY: "http://10.7.7.1:3128",
+  HTTPS_PROXY: "http://10.7.7.1:3128"
 }
 EOF
             chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
