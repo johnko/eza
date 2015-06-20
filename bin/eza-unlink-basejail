@@ -1,11 +1,9 @@
 #!/bin/sh
 
-JAILNAME=$1
-
 if [ "x" == "x${SQUID}" ]; then
     SQUID="10.7.7.1:3128"
 fi
-
+JAILNAME=$1
 
 if [ "x" != "x${JAILNAME}" ]; then
     for i in bin boot lib libexec rescue sbin \
