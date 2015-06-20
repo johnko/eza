@@ -2,6 +2,11 @@
 
 JAILNAME=$1
 
+if [ "x" == "x${SQUID}" ]; then
+    SQUID="10.7.7.1:3128"
+fi
+
+
 if [ "x" != "x${JAILNAME}" ]; then
     for i in bin boot lib libexec rescue sbin \
         usr/bin usr/include usr/lib usr/lib32 usr/libdata usr/libexec usr/ports \
@@ -61,12 +66,12 @@ ALIAS              : {
   size: info -sq,
 }
 PKG_ENV : {
-  HTTP_PROXY: "http://10.7.7.1:3128",
-  HTTPS_PROXY: "http://10.7.7.1:3128"
+  HTTP_PROXY: "http://${SQUID}",
+  HTTPS_PROXY: "http://${SQUID}"
 }
 EOF
             chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
-            echo 'setenv HTTP_PROXY "http://10.7.7.1:3128"' >>/usr/jails/${JAILNAME}/root/.cshrc
+            echo 'setenv HTTP_PROXY "http://${SQUID}"' >>/usr/jails/${JAILNAME}/root/.cshrc
         else
             [ -d /boot/packages ] \
                 && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
