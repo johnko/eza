@@ -68,7 +68,8 @@ PKG_ENV : {
 }
 EOF
         chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
-        echo "setenv HTTP_PROXY \"http://${SQUID}\"" >>/usr/jails/${JAILNAME}/root/.cshrc
+        install -d -m 700 /usr/jails/${JAILNAME}/root/local/cshproxy
+        echo "setenv HTTP_PROXY \"http://${SQUID}\"" >>/usr/jails/${JAILNAME}/root/local/cshproxy
     else
         [ -d /boot/packages ] \
             && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
