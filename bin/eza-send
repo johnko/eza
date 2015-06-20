@@ -1,0 +1,170 @@
+#!/bin/sh
+
+FIRSTSENDOPT="zfs send -DpvR"
+FIRSTRECVOPT="zfs recv -vudF"
+INCREMENTSEND="zfs send -DpvR -I"
+INCREMENTRECV="zfs recv -vud"
+
+if [ "x" == "x${3}" ]; then
+    echo "Usage: `basename -- $0` [-i] jailname user@remotehost:port remote_zfs_dataset"
+fi
+
+if [ "x-i" == "x${1}" ]; then
+    INCREMENTAL=1
+    shift
+fi
+
+ezjail_jailcfgs="${ezjail_etc}/ezjail"
+ezjail_snap_date_format="%Y%m%d%H%M"
+# read user config
+[ -f "${ezjail_etc}/ezjail.conf" ] && . "${ezjail_etc}/ezjail.conf"
+: ${ezjail_jaildir="/usr/jails"}
+
+JAILNAME=${1}
+ezjail_list=${JAILNAME}
+if echo "${2}" | grep ':' >/dev/null 2>&1 ; then
+		REMOTE_HOST=$( echo "${2}" | cut -f1 -d: )
+		REMOTE_PORT=$( echo "${2}" | cut -f2 -d: )
+	else
+		REMOTE_HOST="${2}"
+		REMOTE_PORT=22
+	fi
+	REMOTE_CONNECTION="ssh -p${REMOTE_PORT} ${REMOTE_HOST}"
+fi
+RECVPOOL="${3}"
+
+
+# copy ezjail-admin's function
+fetchjailinfo () {
+  ezjail_name=$1
+
+  # Clean variables, prevent pollution
+  unset ezjail_config ezjail_running ezjail_hostname ezjail_rootdir ezjail_image ezjail_imagetype ezjail_imagedevice ezjail_devicelink ezjail_ips ezjail_id ezjail_attached ezjail_device ezjail_device_geom ezjail_exec_start ezjail_exec_stop ezjail_mount_enable ezjail_devfs_enable ezjail_devfs_ruleset ezjail_procfs_enable ezjail_fdescfs_enable
+
+  ezjail_safename=`echo -n "${ezjail_name}" | tr -c '[:alnum:]' _`
+
+  if [ -z "$2" ]; then
+    [ -e "${ezjail_jailcfgs}/${ezjail_safename}"       ] && ezjail_config="${ezjail_jailcfgs}/${ezjail_safename}"
+    [ -e "${ezjail_jailcfgs}/${ezjail_safename}.norun" ] && ezjail_config="${ezjail_jailcfgs}/${ezjail_safename}.norun"
+  else
+    ezjail_config=$2
+  fi
+  [ "${ezjail_config}" ] || return 0
+
+  . "${ezjail_config}"
+  eval ezjail_hostname=\"\$jail_${ezjail_safename}_hostname\"
+  eval ezjail_ips=\"\$jail_${ezjail_safename}_ip\"
+  eval ezjail_rootdir=\"\$jail_${ezjail_safename}_rootdir\"
+
+  eval ezjail_exec_start=\"\$jail_${ezjail_safename}_exec_start\"
+  eval ezjail_exec_stop=\"\$jail_${ezjail_safename}_exec_stop\"
+  # fix backward compatibility issue
+  eval ezjail_exec=\"\$jail_${ezjail_safename}_exec\"
+  [ "${ezjail_exec}" -a -z "${ezjail_exec_start}" ] && ezjail_exec_start=${ezjail_exec}
+
+  eval ezjail_mount_enable=\"\$jail_${ezjail_safename}_mount_enable\"
+  eval ezjail_devfs_enable=\"\$jail_${ezjail_safename}_devfs_enable\"
+  eval ezjail_devfs_ruleset=\"\$jail_${ezjail_safename}_devfs_ruleset\"
+  eval ezjail_procfs_enable=\"\$jail_${ezjail_safename}_procfs_enable\"
+  eval ezjail_fdescfs_enable=\"\$jail_${ezjail_safename}_fdescfs_enable\"
+
+  eval ezjail_image=\"\$jail_${ezjail_safename}_image\"
+  eval ezjail_imagetype=\"\$jail_${ezjail_safename}_imagetype\"
+  eval ezjail_attachparams=\"\$jail_${ezjail_safename}_attachparams\"
+  eval ezjail_attachblocking=\"\$jail_${ezjail_safename}_attachblocking\"
+  eval ezjail_forceblocking=\"\$jail_${ezjail_safename}_forceblocking\"
+  eval ezjail_zfs_datasets=\"\$jail_${ezjail_safename}_zfs_datasets\"
+  eval ezjail_cpuset=\"\$jail_${ezjail_safename}_cpuset\"
+  eval ezjail_fib=\"\$jail_${ezjail_safename}_fib\"
+  eval ezjail_parentzfs=\"\$jail_${ezjail_safename}_parentzfs\"
+  eval ezjail_parameters=\"\$jail_${ezjail_safename}_parameters\"
+  eval ezjail_post_start_script=\"\$jail_${ezjail_safename}_post_start_script\"
+  eval ezjail_retention_policy=\"\$jail_${ezjail_safename}_retention_policy\"
+  ########## START CUSTOM
+  eval ezjail_fstab=\"\$jail_${ezjail_safename}_fstab\"
+  ########## END CUSTOM
+
+  # Pre ezjail-3.3-jails do not have this set
+  : ${ezjail_parentzfs:=${ezjail_jailzfs}}
+
+  ezjail_softlink=${ezjail_jaildir}/`basename -- "${ezjail_rootdir}"`
+  ezjail_devicelink="${ezjail_rootdir}.device"
+
+  if [ "${ezjail_image}" -a -L "${ezjail_devicelink}" ]; then
+    # Fetch destination of soft link
+    ezjail_device=`stat -f "%Y" ${ezjail_devicelink}`
+    ezjail_device_geom=${ezjail_device#/dev/}
+
+    # Add this device to the list of devices to be unmounted
+    case ${ezjail_imagetype} in
+      crypto|bde) ezjail_imagedevice=${ezjail_device_geom%.bde} ;;
+      eli)        ezjail_imagedevice=${ezjail_device_geom%.eli} ;;
+      zfs)        ezjail_imagedevice='' ;;
+      *)          ezjail_imagedevice=${ezjail_device_geom} ;;
+    esac
+
+    mount -p -v | grep -q -E "^${ezjail_devicelink}[[:space:]]+${ezjail_rootdir}" && ezjail_attached="YES"
+    mount -p -v | grep -q -E "^${ezjail_device}[[:space:]]+${ezjail_rootdir}" && ezjail_attached="YES"
+
+    # Stale device link detected. Remove and clean.
+    [ -z "${ezjail_attached}" ] && unset ezjail_device && rm -f "${ezjail_devicelink}"
+  fi
+
+  [ -f "/var/run/jail_${ezjail_safename}.id" ] && ezjail_id=`cat /var/run/jail_${ezjail_safename}.id` || return
+  jls | grep -q -E "^ *${ezjail_id} " || unset ezjail_id
+}
+
+
+# Copy ezjail-admin's loop
+for ezjail in ${ezjail_list}; do
+  fetchjailinfo ${ezjail%.norun}
+
+  # Check for existence of jail in our records
+  [ "${ezjail_config}" ] || exerr "Error: Nothing known about jail ${ezjail_name}."
+
+  # Snapshots only work with zfs jails
+  [ "${ezjail_imagetype}" = "zfs" -o -n "${ezjail_zfs_datasets}" ] || continue
+
+  [ "${ezjail_imagetype}" = "zfs" ] && ezjail_zfs_datasets="${ezjail_parentzfs}/${ezjail_hostname} ${ezjail_zfs_datasets}"
+
+  # Use global retention policy, if none set
+  : ${ezjail_retention_policy:=${ezjail_default_retention_policy}}
+
+  for ezjail_zfs in ${ezjail_zfs_datasets}; do
+    check_for_zfs_exist ${ezjail_zfs} || continue
+    zfs_retention_policy=`/sbin/zfs get -H -o value ezjail:autosnap_retention ${ezjail_zfs}`
+    [ "${zfs_retention_policy}" = "-" ] || ezjail_retention_policy="${zfs_retention_policy}"
+    if [ -z "${ezjail_retention_policy}" ]; then
+      ########## START CUSTOM
+      if [ "x" == "x${NEWSNAP}" ]; then
+        NEWSNAP=${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
+        #eza snapshot ${JAILNAME}
+      fi
+      ########## END CUSTOM
+      /sbin/zfs snapshot -r ${ezjail_zfs}@ez-autosnap-`date +${ezjail_snap_date_format}`
+    #else
+    #  snap_list=`/sbin/zfs list -H -t snapshot -o name -S creation -r ${ezjail_zfs} | \
+    #    grep ^${ezjail_zfs}@ez-autosnap- | cut -d '@' -f 2 | cut -d '-' -f 3`
+    #  filteroldsnapshots ${snap_list}
+    fi
+  done
+
+done
+
+
+if [ "x${INCREMENTAL}" == "x1" ]; then
+    FIRSTSNAP=`/sbin/zfs list -H -t snapshot -o name -S creation -r ${ezjail_zfs} | \
+        grep ^${ezjail_zfs}@ez-autosnap- | head -1`
+    LASTSNAP="${NEWSNAP}"
+    echo "${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} ${INCREMENTRECV} ${RECVPOOL}"
+          ${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} ${INCREMENTRECV} ${RECVPOOL} || exit 1
+else
+    FIRSTSNAP="${NEWSNAP}"
+    echo "${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} ${FIRSTRECVOPT} ${RECVPOOL}"
+          ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} ${FIRSTRECVOPT} ${RECVPOOL} || exit 1
+fi
+
+for i in ${ezjail_fstab} ${ezjail_config} ; do
+    echo ${i}
+    rsync -viaP -e"ssh -p${REMOTE_PORT}"  ${i}  ${REMOTE_HOST}:${i}  || exit 1
+fi
