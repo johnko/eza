@@ -167,7 +167,7 @@ done
 
 
 if [ "x${INCREMENTAL}" == "x1" ]; then
-    FIRSTSNAP=`/sbin/zfs list -H -t snapshot -o name -S creation -r ${ezjail_zfs} | \
+    FIRSTSNAP=`/sbin/zfs list -H -t snapshot -o name -s creation -r ${ezjail_zfs} | \
         grep ^${ezjail_zfs}@ez-autosnap- | head -1`
     LASTSNAP="${NEWSNAP}"
     echo "${INCREMENTSEND} ${FIRSTSNAP} ${LASTSNAP} | ${REMOTE_CONNECTION} ${INCREMENTRECV} ${RECVPOOL}"
