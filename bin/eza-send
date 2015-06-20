@@ -33,6 +33,8 @@ fi
 REMOTE_CONNECTION="ssh -p${REMOTE_PORT} ${REMOTE_HOST}"
 RECVPOOL="${3}"
 
+# copy ezjail-admin's bailout
+exerr () { echo -e "$*" >&2 ; exit 1; }
 
 # copy ezjail-admin's function
 fetchjailinfo () {
