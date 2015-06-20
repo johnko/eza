@@ -35,10 +35,9 @@ if [ "x" != "x${JAILNAME}" ]; then
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
     # Not squid jail otherwise recursive dependency
     if [ "xsquid" != "x${JAILNAME}" ]; then
-        if eza list | grep ' squid ' >/dev/null ; then
-            # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
-            install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
-            cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
+        # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
+        install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
+        cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
 # Sample alias settings
 ALIAS              : {
   all-depends: query %dn-%dv,
@@ -70,13 +69,12 @@ PKG_ENV : {
   HTTPS_PROXY: "http://${SQUID}"
 }
 EOF
-            chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
-            echo 'setenv HTTP_PROXY "http://${SQUID}"' >>/usr/jails/${JAILNAME}/root/.cshrc
-        else
-            [ -d /boot/packages ] \
-                && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
-                && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
-        fi
+        chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
+        echo 'setenv HTTP_PROXY "http://${SQUID}"' >>/usr/jails/${JAILNAME}/root/.cshrc
+    else
+        [ -d /boot/packages ] \
+            && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
+            && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
     fi
     eza console -f -e "freebsd-update fetch" ${JAILNAME} | cat
     eza console -f -e "freebsd-update install" ${JAILNAME} | cat
