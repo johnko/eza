@@ -1,7 +1,11 @@
 #!/bin/sh
 
-which rsync || exit 1
+if ! which rsync >/dev/null ; then
+    echo "Can't find rsync."
+    exit 1
+fi
 
+# Unlink newjail because freebsd-update doesn't like the symlinks
 JAILNAME="newjail"
 
 for i in bin boot lib libexec rescue sbin \
@@ -12,5 +16,5 @@ for i in bin boot lib libexec rescue sbin \
         rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
     fi
 done
-    
+
 eza update -u
