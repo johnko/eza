@@ -4,25 +4,14 @@ FIRSTSENDOPT="zfs send -DpvR"
 FIRSTRECVOPT="zfs recv -vudF"
 INCREMENTSEND="zfs send -DpvR -I"
 INCREMENTRECV="zfs recv -vud"
-
 if [ "x" == "x${3}" ]; then
     echo "Usage: `basename -- $0` [-i] jailname user@remotehost:port remote_zfs_dataset"
     exit 1
 fi
-
 if [ "x-i" == "x${1}" ]; then
     INCREMENTAL=1
     shift
 fi
-
-ezjail_prefix=/usr/local
-ezjail_etc="${ezjail_prefix}/etc"
-ezjail_jailcfgs="${ezjail_etc}/ezjail"
-ezjail_snap_date_format="%Y%m%d%H%M"
-# read user config
-[ -f "${ezjail_etc}/ezjail.conf" ] && . "${ezjail_etc}/ezjail.conf"
-: ${ezjail_jaildir="/usr/jails"}
-
 JAILNAME=${1}
 ezjail_list=${JAILNAME}
 if echo "${2}" | grep ':' >/dev/null 2>&1 ; then
@@ -34,6 +23,16 @@ else
 fi
 REMOTE_CONNECTION="ssh -p${REMOTE_PORT} ${REMOTE_HOST}"
 RECVPOOL="${3}"
+
+
+# copy ezjail-admin's defaults
+ezjail_prefix=/usr/local
+ezjail_etc="${ezjail_prefix}/etc"
+ezjail_jailcfgs="${ezjail_etc}/ezjail"
+ezjail_snap_date_format="%Y%m%d%H%M"
+# read user config
+[ -f "${ezjail_etc}/ezjail.conf" ] && . "${ezjail_etc}/ezjail.conf"
+: ${ezjail_jaildir="/usr/jails"}
 
 # copy ezjail-admin's bailout
 exerr () { echo -e "$*" >&2 ; exit 1; }
@@ -128,7 +127,6 @@ fetchjailinfo () {
   jls | grep -q -E "^ *${ezjail_id} " || unset ezjail_id
 }
 
-
 # Copy ezjail-admin's loop
 for ezjail in ${ezjail_list}; do
   fetchjailinfo ${ezjail%.norun}
@@ -166,6 +164,7 @@ for ezjail in ${ezjail_list}; do
 done
 
 
+########## MORE CUSTOM
 if [ "x${INCREMENTAL}" == "x1" ]; then
     FIRSTSNAP=`/sbin/zfs list -H -t snapshot -o name -s creation -r ${ezjail_zfs} | \
         grep ^${ezjail_zfs}@ez-autosnap- | head -1`
@@ -177,7 +176,7 @@ else
     echo "${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} ${FIRSTRECVOPT} ${RECVPOOL}"
           ${FIRSTSENDOPT} ${FIRSTSNAP} | ${REMOTE_CONNECTION} ${FIRSTRECVOPT} ${RECVPOOL} || exit 1
 fi
-
+# Copy the config and fstab too
 for i in ${ezjail_fstab} ${ezjail_config} ; do
     echo ${i}
     rsync -viaP -e"ssh -p${REMOTE_PORT}"  ${i}  ${REMOTE_HOST}:${i}  || exit 1
