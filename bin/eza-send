@@ -15,6 +15,8 @@ if [ "x-i" == "x${1}" ]; then
     shift
 fi
 
+ezjail_prefix=/usr/local
+ezjail_etc="${ezjail_prefix}/etc"
 ezjail_jailcfgs="${ezjail_etc}/ezjail"
 ezjail_snap_date_format="%Y%m%d%H%M"
 # read user config
