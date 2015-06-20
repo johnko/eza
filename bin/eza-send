@@ -39,6 +39,16 @@ RECVPOOL="${3}"
 exerr () { echo -e "$*" >&2 ; exit 1; }
 
 # copy ezjail-admin's function
+check_for_zfs_exist () {
+  # check if the zfs we want to use already exists or not, return 0 if it does and 1 if not
+  _exit=1
+  _to_check=$1
+  _zfs_status=`/sbin/zfs list -H -o name ${_to_check} 2> /dev/null`
+  [ "${_zfs_status}" = "${_to_check}" ] && _exit=0
+  return ${_exit}
+}
+
+# copy ezjail-admin's function
 fetchjailinfo () {
   ezjail_name=$1
 
