@@ -181,4 +181,4 @@ fi
 for i in ${ezjail_fstab} ${ezjail_config} ; do
     echo ${i}
     rsync -viaP -e"ssh -p${REMOTE_PORT}"  ${i}  ${REMOTE_HOST}:${i}  || exit 1
-fi
+done
