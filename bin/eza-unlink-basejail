@@ -20,13 +20,10 @@ if [ "x" != "x${JAILNAME}" ]; then
     cat  /tmp/fstab.${JAILNAME} >/usr/local/etc/fstab.${JAILNAME}
     rm   /tmp/fstab.${JAILNAME}
     [ -e /etc/resolv.conf ] \
-        && [ ! -e /usr/jails/${JAILNAME}/etc/resolv.conf ] \
         && cp /etc/resolv.conf /usr/jails/${JAILNAME}/etc/
     [ -e /etc/hosts ] \
-        && [ ! -e /usr/jails/${JAILNAME}/etc/hosts ] \
         && cp /etc/hosts /usr/jails/${JAILNAME}/etc/
     [ -e ~/bin/fres ] \
-        && [ ! -e /usr/jails/${JAILNAME}/root/fres ] \
         && cp ~/bin/fres /usr/jails/${JAILNAME}/root/
     [ -e /usr/local/sbin/pkg-static ] \
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
