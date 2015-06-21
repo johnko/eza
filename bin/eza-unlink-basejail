@@ -70,13 +70,15 @@ EOF
         chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
         install -d -m 700 /usr/jails/${JAILNAME}/root/local/cshproxy
         echo "setenv HTTP_PROXY \"http://${SQUID}\"" >>/usr/jails/${JAILNAME}/root/local/cshproxy
+        MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
     else
         [ -d /boot/packages ] \
             && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
             && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
+        MYENV="env PAGER=cat"
     fi
-    eza console -f -e "freebsd-update fetch" ${JAILNAME} | cat
-    eza console -f -e "freebsd-update install" ${JAILNAME} | cat
+    eza console -f -e "${MYENV} freebsd-update fetch" ${JAILNAME}
+    eza console -f -e "${MYENV} freebsd-update install" ${JAILNAME}
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
