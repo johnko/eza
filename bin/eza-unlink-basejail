@@ -65,7 +65,7 @@ PKG_ENV : {
 }
 EOF
         chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
-        install -d -m 700 /usr/jails/${JAILNAME}/root/local/cshproxy
+        install -d -m 700 /usr/jails/${JAILNAME}/root/local
         echo "setenv HTTP_PROXY \"http://${SQUID}\"" >>/usr/jails/${JAILNAME}/root/local/cshproxy
         MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
     else
