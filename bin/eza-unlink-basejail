@@ -3,6 +3,9 @@
 if [ "x" == "x${SQUID}" ]; then
     SQUID="10.7.7.1:3128"
 fi
+if [ "x" == "x${REPOSRC}" ]; then
+    REPOSRC=https://github.com/
+fi
 JAILNAME=$1
 
 if [ "x" != "x${JAILNAME}" ]; then
@@ -76,7 +79,7 @@ EOF
     fi
     eza console -f -e "${MYENV} freebsd-update -F fetch install" ${JAILNAME}
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
-    eza console -f -e "sh /root/fres" ${JAILNAME}
+    eza console -f -e "env REPOSRC=${REPOSRC} sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
 else
     echo "ERROR: missing jail name" >&2
