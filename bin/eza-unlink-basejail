@@ -74,8 +74,7 @@ EOF
             && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
         MYENV="env PAGER=cat"
     fi
-    eza console -f -e "${MYENV} freebsd-update fetch" ${JAILNAME}
-    eza console -f -e "${MYENV} freebsd-update install" ${JAILNAME}
+    eza console -f -e "${MYENV} freebsd-update -F fetch install" ${JAILNAME}
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
