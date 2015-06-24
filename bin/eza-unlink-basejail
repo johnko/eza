@@ -31,6 +31,8 @@ if [ "x" != "x${JAILNAME}" ]; then
     [ -e /usr/local/sbin/pkg-static ] \
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
+    [ -d /root/git ] \
+        && rsync -vialP /root/git/  /usr/jails/${JAILNAME}/root/git/
     # Not squid jail otherwise recursive dependency
     if [ "xsquid" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
