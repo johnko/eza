@@ -14,7 +14,7 @@ if [ "x" != "x${JAILNAME}" ]; then
         usr/sbin usr/share usr/src ; do
         if [ -h /usr/jails/${JAILNAME}/${i} ]; then
                                                 rm  /usr/jails/${JAILNAME}/${i}
-            rsync -vialP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
+            rsync -qalP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
         fi
     done
     cat /usr/local/etc/fstab.${JAILNAME} \
@@ -32,7 +32,7 @@ if [ "x" != "x${JAILNAME}" ]; then
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
     [ -d /root/git ] \
-        && rsync -vialP /root/git/  /usr/jails/${JAILNAME}/root/git/
+        && rsync -qalP /root/git/  /usr/jails/${JAILNAME}/root/git/
     # Not squid jail otherwise recursive dependency
     if [ "xsquid" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
@@ -75,7 +75,7 @@ EOF
         MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
     else
         [ -d /boot/packages ] \
-            && rsync -vialP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
+            && rsync -qalP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
             && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
         MYENV="env PAGER=cat"
     fi
