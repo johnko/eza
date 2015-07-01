@@ -6,6 +6,9 @@ INCREMENTSEND="zfs send -DpvR -I"
 INCREMENTRECV="zfs recv -vud"
 if [ "x" == "x${3}" ]; then
     echo "Usage: `basename -- $0` [-i] jailname user@remotehost:port remote_zfs_dataset"
+    echo "Example:"
+    echo "       `basename -- $0` squid sega.local tank"
+    echo "       `basename -- $0` -i squid sega.local tank"
     exit 1
 fi
 if ! which rsync >/dev/null ; then
