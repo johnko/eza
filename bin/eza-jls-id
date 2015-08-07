@@ -1,0 +1,9 @@
+#!/bin/sh
+
+jls -h jid name \
+| while read jid name ; do
+    if [ "jid" != "${jid}" ] && [ "name" != "${name}" ]; then
+        echo "${jid}" > /var/run/jail_${name}.id
+    fi
+done
+
