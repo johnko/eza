@@ -8,11 +8,13 @@ for JAILNAME in `jls -h name | grep -v '^name$'` ; do
 
     if [ "xsquid" != "x${JAILNAME}" ]; then
         MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
+        eza console -f -e "pkg update" ${JAILNAME}
+        eza console -f -e "pkg upgrade -y" ${JAILNAME}
     else
         MYENV="env PAGER=cat"
-        eza console -f -e "fres" ${JAILNAME}
     fi
 
+    eza console -f -e "fres" ${JAILNAME}
     eza console -f -e "${MYENV} freebsd-update -F --not-running-from-cron fetch install" ${JAILNAME}
 
 done
