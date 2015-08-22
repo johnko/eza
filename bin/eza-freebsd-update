@@ -1,20 +1,18 @@
 #!/bin/sh
 
+eza-update
+
 if [ "x" == "x${SQUID}" ]; then
     SQUID="10.7.7.1:3128"
 fi
 
-for JAILNAME in `jls -h name | grep -v '^name$'` ; do
+for name in `jls -h name | grep -v '^name$'` ; do
 
-    if [ "xsquid" != "x${JAILNAME}" ]; then
-        MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
-        eza console -f -e "pkg update" ${JAILNAME}
-        eza console -f -e "pkg upgrade -y" ${JAILNAME}
-    else
-        MYENV="env PAGER=cat"
+    env SQUID=${SQUID} eza-unlink-basejail ${name}
+    eza console -f -e "fres" ${name}
+    if [ "squid" != "${name}" ]; then
+        eza console -f -e "pkg update" ${name}
+        eza console -f -e "pkg upgrade -y" ${name}
     fi
-
-    eza console -f -e "fres" ${JAILNAME}
-    eza console -f -e "${MYENV} freebsd-update -F --not-running-from-cron fetch install" ${JAILNAME}
 
 done
