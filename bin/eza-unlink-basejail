@@ -74,9 +74,6 @@ EOF
         echo "setenv HTTP_PROXY \"http://${SQUID}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
         MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
     else
-        [ -d /boot/packages ] \
-            && rsync -qalP /boot/packages/  /usr/jails/${JAILNAME}/boot/packages/ \
-            && eza console -f -e "pkg-static add $( ls /boot/packages/*.t?z )" ${JAILNAME}
         MYENV="env PAGER=cat"
     fi
     eza console -f -e "${MYENV} freebsd-update -F --not-running-from-cron fetch install" ${JAILNAME}
