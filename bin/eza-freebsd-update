@@ -9,7 +9,6 @@ fi
 for name in `jls -h name | grep -v '^name$'` ; do
 
     env SQUID=${SQUID} eza-unlink-basejail ${name}
-    eza console -f -e "fres" ${name}
     if [ "squid" != "${name}" ]; then
         eza console -f -e "pkg update" ${name}
         eza console -f -e "pkg upgrade -y" ${name}
