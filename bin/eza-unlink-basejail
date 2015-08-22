@@ -17,15 +17,19 @@ if [ "x" != "x${JAILNAME}" ]; then
             rsync -qalP /usr/jails/basejail/${i}/  /usr/jails/${JAILNAME}/${i}/
         fi
     done
-    cat /usr/local/etc/fstab.${JAILNAME} \
-        | awk '{print "# "$0}' \
-        >/tmp/fstab.${JAILNAME}
-    cat  /tmp/fstab.${JAILNAME} >/usr/local/etc/fstab.${JAILNAME}
-    rm   /tmp/fstab.${JAILNAME}
+    if ! grep "^# " /usr/local/etc/fstab.${JAILNAME} ; then
+        cat /usr/local/etc/fstab.${JAILNAME} \
+            | awk '{print "# "$0}' \
+            >/tmp/fstab.${JAILNAME}
+        cat  /tmp/fstab.${JAILNAME} >/usr/local/etc/fstab.${JAILNAME}
+        rm   /tmp/fstab.${JAILNAME}
+    fi
     [ -e /etc/resolv.conf ] \
         && cp /etc/resolv.conf /usr/jails/${JAILNAME}/etc/
-    [ -e /etc/hosts ] \
-        && cp /etc/hosts /usr/jails/${JAILNAME}/etc/
+    if [ "xgitlab" != "x${JAILNAME}" ] && [ "xvnc" != "x${JAILNAME}" ]; then
+        [ -e /etc/hosts ] \
+            && cp /etc/hosts /usr/jails/${JAILNAME}/etc/
+    fi
     [ -e ~/bin/fres ] \
         && cp ~/bin/fres /usr/jails/${JAILNAME}/root/
     [ -e /usr/local/sbin/pkg-static ] \
@@ -80,6 +84,9 @@ EOF
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "env REPOSRC=${REPOSRC} sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
+    if [ -e /usr/jails/${JAILNAME}/root/.vnc/passwd ]; then
+        echo >/usr/jails/${JAILNAME}/root/local/cshproxy
+    fi
 else
     echo "ERROR: missing jail name" >&2
     exit 1
