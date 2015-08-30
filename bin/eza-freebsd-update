@@ -1,5 +1,7 @@
 #!/bin/sh
 
+eza-jls-id
+
 eza-update
 
 if [ "x" == "x${SQUID}" ]; then
