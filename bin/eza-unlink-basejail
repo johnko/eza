@@ -2,9 +2,6 @@
 
 eza-jls-id
 
-if [ "x" == "x${SQUID}" ]; then
-    SQUID="10.7.7.1:3128"
-fi
 if [ "x" == "x${REPOSRC}" ]; then
     REPOSRC=https://github.com/
 fi
@@ -43,7 +40,8 @@ if [ "x" != "x${JAILNAME}" ]; then
     if [ "xsquid" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
         install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
-        cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
+        if [ "x" != "x${SQUID}" ]; then
+            cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
 # Sample alias settings
 ALIAS              : {
   all-depends: query %dn-%dv,
@@ -75,11 +73,13 @@ PKG_ENV : {
   HTTPS_PROXY: "http://${SQUID}"
 }
 EOF
-        chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
-        install -d -m 700 /usr/jails/${JAILNAME}/root/local
-        echo "setenv HTTP_PROXY \"http://${SQUID}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
-        MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
-    else
+            chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
+            install -d -m 700 /usr/jails/${JAILNAME}/root/local
+            echo "setenv HTTP_PROXY \"http://${SQUID}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
+            MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
+        fi
+    fi
+    if [ "x" == "x${MYENV}" ] ; then
         MYENV="env PAGER=cat"
     fi
     eza console -f -e "${MYENV} freebsd-update -F --not-running-from-cron fetch install" ${JAILNAME}
