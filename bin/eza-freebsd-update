@@ -4,10 +4,6 @@ eza-jls-id
 
 eza-update
 
-if [ "x" == "x${SQUID}" ]; then
-    SQUID="10.7.7.1:3128"
-fi
-
 for name in `jls -h name | grep -v '^name$'` ; do
 
     env SQUID=${SQUID} eza-unlink-basejail ${name}
