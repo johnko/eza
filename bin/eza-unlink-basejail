@@ -41,38 +41,9 @@ if [ "x" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
         install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
         if [ "x" != "x${SQUID}" ]; then
-            cat >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf <<EOF
-# Sample alias settings
-ALIAS              : {
-  all-depends: query %dn-%dv,
-  annotations: info -A,
-  build-depends: info -qd,
-  cinfo: info -Cx,
-  comment: query -i "%c",
-  csearch: search -Cx,
-  desc: query -i "%e",
-  download: fetch,
-  iinfo: info -ix,
-  isearch: search -ix,
-  prime-list: "query -e '%a = 0' '%n'",
-  leaf: "query -e '%#r == 0' '%n-%v'",
-  list: info -ql,
-  noauto = "query -e '%a == 0' '%n-%v'",
-  options: query -i "%n - %Ok: %Ov",
-  origin: info -qo,
-  provided-depends: info -qb,
-  raw: info -R,
-  required-depends: info -qr,
-  roptions: rquery -i "%n - %Ok: %Ov",
-  shared-depends: info -qB,
-  show: info -f -k,
-  size: info -sq,
-}
-PKG_ENV : {
-  HTTP_PROXY: "http://${SQUID}",
-  HTTPS_PROXY: "http://${SQUID}"
-}
-EOF
+            cat /root/git/eza/usr/local/etc/pkg.conf \
+                | sed "s;SQUID;${SQUID};" \
+                >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
             chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
             install -d -m 700 /usr/jails/${JAILNAME}/root/local
             echo "setenv HTTP_PROXY \"http://${SQUID}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
