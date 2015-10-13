@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -d /usr/local/etc ]; then
+    install -m 644 /root/git/eza/usr/local/etc/ezjail.conf /usr/local/etc/ezjail.conf
+fi
