@@ -34,14 +34,14 @@ if [ "x" != "x${JAILNAME}" ]; then
     [ -e /usr/local/sbin/pkg-static ] \
         && [ ! -e /usr/jails/${JAILNAME}/sbin/pkg-static ] \
         && cp -a /usr/local/sbin/pkg-static /usr/jails/${JAILNAME}/sbin/
-    [ -d /root/git ] \
-        && rsync -qalP /root/git/  /usr/jails/${JAILNAME}/root/git/
+    [ -d ~/git ] \
+        && rsync -qalP ~/git/  /usr/jails/${JAILNAME}/root/git/
     # Not squid jail otherwise recursive dependency
     if [ "xsquid" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
         install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
         if [ "x" != "x${SQUID}" ]; then
-            cat /root/git/eza/usr/local/etc/pkg.conf \
+            cat ~/git/eza/usr/local/etc/pkg.conf \
                 | sed "s;SQUID;${SQUID};" \
                 >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
             chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
