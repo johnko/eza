@@ -57,8 +57,6 @@ if [ "x" != "x${JAILNAME}" ]; then
     eza console -f -e "pkg-static install -y pkg git" ${JAILNAME}
     eza console -f -e "env REPOSRC=${REPOSRC} sh /root/fres" ${JAILNAME}
     eza console -f -e "rm /root/fres" ${JAILNAME}
-    # update /etc/preiodic.conf
-    eza console -f -e "periodic-config" ${JAILNAME}
     if [ -e /usr/jails/${JAILNAME}/root/.vnc/passwd ]; then
         echo >/usr/jails/${JAILNAME}/root/local/cshproxy
     fi
