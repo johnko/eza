@@ -40,14 +40,14 @@ if [ "x" != "x${JAILNAME}" ]; then
     if [ "xsquid" != "x${JAILNAME}" ]; then
         # Thanks to @tomster via https://github.com/freebsd/pkg/issues/1181
         install -d -m 755 /usr/jails/${JAILNAME}/usr/local/etc
-        if [ "x" != "x${SQUID}" ]; then
+        if [ "x" != "x${HTTP_PROXY}" ]; then
             cat ~/git/eza/usr/local/etc/pkg.conf \
-                | sed "s;SQUID;${SQUID};" \
+                | sed "s;SQUID;${HTTP_PROXY};" \
                 >/usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
             chmod 644 /usr/jails/${JAILNAME}/usr/local/etc/pkg.conf
             install -d -m 700 /usr/jails/${JAILNAME}/root/local
-            echo "setenv HTTP_PROXY \"http://${SQUID}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
-            MYENV="env PAGER=cat HTTP_PROXY=http://${SQUID}"
+            echo "setenv HTTP_PROXY \"${HTTP_PROXY}\"" >/usr/jails/${JAILNAME}/root/local/cshproxy
+            MYENV="env PAGER=cat HTTP_PROXY=${HTTP_PROXY}"
         fi
     fi
     if [ "x" == "x${MYENV}" ] ; then
