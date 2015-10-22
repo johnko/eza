@@ -3,7 +3,7 @@
 eza-jls-id
 
 if [ "x" == "x${REPOSRC}" ]; then
-    REPOSRC=https://github.com/
+    REPOSRC=https://github.com/johnko
 fi
 JAILNAME=$1
 
